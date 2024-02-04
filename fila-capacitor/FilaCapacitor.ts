@@ -5,7 +5,7 @@ declare const CAPACITOR: boolean;
 (() =>
 {
 	if (typeof CAPACITOR === "undefined")
-	Object.assign(globalThis, { TAURI: typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined" });
+	Object.assign(globalThis, { CAPACITOR: typeof window !== "undefined" && typeof (window as any).Capacitor !== "undefined" });
 	
 	//@ts-ignore
 	if (!CAPACITOR) return;
