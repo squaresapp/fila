@@ -620,12 +620,8 @@ namespace Fila
 //@ts-ignore CommonJS compatibility
 typeof module === "object" && Object.assign(module.exports, { Fila });
 
-// ES module compatibility
+// CommonJS module typings
 declare module "@squaresapp/fila"
 {
-	const __export: { Fila: typeof Fila };
-	export = __export;
+	export = Fila;
 }
-
-// The comment and + prefix is removed during npm run bundle
-//+ export { Fila }
