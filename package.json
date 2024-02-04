@@ -1,0 +1,51 @@
+{
+	"name": "filajs",
+	"author": "Paul Gordon",
+	"description": "File system layer with multiple backends for different JavaScript environments.",
+	"license": "MIT",
+	"version": "1.0.2",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/squaresapp/fila"
+	},
+	"bugs": {
+		"url": "https://github.com/squaresapp/fila/issues"
+	},
+	"main": "fila.js",
+	"browser": "fila-web.js",
+	"types": "fila.d.ts",
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"LICENSE.txt",
+		"readme.md",
+		"fila.js",
+		"fila.min.js",
+		"fila.d.ts",
+		"fila.d.ts.map",
+		"fila-capacitor.min.js",
+		"fila-node.min.js",
+		"fila-tauri.min.js",
+		"fila-web.min.js"
+	],
+	"scripts": {
+		"test": "exit 0",
+		"bundle": "tsc -p tsconfig.release.json && terser ./+build/fila.debug.js > ./+build/fila.min.js",
+		"bundle-capacitor": "tsc -p tsconfig.release.json && terser ./+build/fila.debug.js > ./+build/fila-capacitor.min.js --define CAPACITOR=true --define NODE=false --define TAURI=false --define WEB=false",
+		"bundle-node": "tsc -p tsconfig.release.json && terser ./+build/fila.debug.js > ./+build/fila-node.min.js --define CAPACITOR=false --define NODE=true --define TAURI=false --define WEB=false",
+		"bundle-tauri": "tsc -p tsconfig.release.json && terser ./+build/fila.debug.js > ./+build/fila-tauri.min.js --define CAPACITOR=false --define NODE=false --define TAURI=true --define WEB=false",
+		"bundle-web": "tsc -p tsconfig.release.json && terser ./+build/fila.debug.js > ./+build/fila-web.min.js --define CAPACITOR=false --define NODE=false --define TAURI=false --define WEB=true",
+		"bundle-all": "npm run bundle-capacitor && npm run bundle-node && npm run bundle-tauri && npm run bundle-web",
+		"release": "npm run bundle-all && cd ./+build && cp ../package.json ./package.json && np && cp ./package.json ../package.json"
+	},
+	"dependencies": {
+		"chokidar": "^3.5.3"
+	},
+	"devDependencies": {
+		"@capacitor/filesystem": "^5.2.1",
+		"@tauri-apps/api": "^1.5.3",
+		"@types/node": "^20.11.16",
+		"keyvajs": "^1.0.2"
+	}
+}
