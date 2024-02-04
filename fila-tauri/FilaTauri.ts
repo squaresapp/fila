@@ -209,36 +209,6 @@ declare const TAURI: boolean;
 		private _meta: Metadata | null = null;
 	}
 	
-	const setup = Fila.setup; Fila.setup = async () =>
-	{
-		let path: typeof import("@tauri-apps/api").path | null = null;
-			
-		try
-		{
-			path = (globalThis as any).__TAURI__.path as typeof import("@tauri-apps/api").path;
-		}
-		catch (e)
-		{
-			console.log("withGlobalTauri is not set");
-			return;
-		}
-		
-		let cwd = "/";
-		let tmp = "/";
-		
-		try
-		{
-			cwd = await path.appDataDir();
-			tmp = await path.appCacheDir();
-		}
-		catch (e)
-		{
-			console.error("The Tauri environment doesn't have access to the path APIs");
-		}
-		
-		setup(FilaTauri, path?.sep || "", cwd, tmp);
-	};
-	
 	const t = (globalThis as any).__TAURI__;
 	const tauri: typeof import("@tauri-apps/api").tauri = t.tauri;
 	const wind: typeof import("@tauri-apps/api").window = t.window;
@@ -474,4 +444,35 @@ declare const TAURI: boolean;
 		 */
 		mode?: number;
 	}
+	
+	const setup = Fila.setup; Fila.setup = async () =>
+	{
+		let path: typeof import("@tauri-apps/api").path | null = null;
+			
+		try
+		{
+			path = (globalThis as any).__TAURI__.path as typeof import("@tauri-apps/api").path;
+		}
+		catch (e)
+		{
+			console.log("withGlobalTauri is not set");
+			return;
+		}
+		
+		let cwd = "/";
+		let tmp = "/";
+		
+		try
+		{
+			cwd = await path.appDataDir();
+			tmp = await path.appCacheDir();
+		}
+		catch (e)
+		{
+			console.error("The Tauri environment doesn't have access to the path APIs");
+		}
+		
+		setup(FilaTauri, path?.sep || "", cwd, tmp);
+	};
+	
 })();
