@@ -444,11 +444,9 @@ declare const TAURI: boolean;
 		 */
 		mode?: number;
 	}
-	
-	const setup = Fila.setup; Fila.setup = async () =>
+		
 	{
 		let path: typeof import("@tauri-apps/api").path | null = null;
-			
 		try
 		{
 			path = (globalThis as any).__TAURI__.path as typeof import("@tauri-apps/api").path;
@@ -459,20 +457,17 @@ declare const TAURI: boolean;
 			return;
 		}
 		
-		let cwd = "/";
-		let tmp = "/";
+		const sep = path?.sep || "/";
+		const cwd = "/";
+		const tmp = "/";
+		Fila.setup(FilaTauri, sep, cwd, tmp);
 		
-		try
+		(async () =>
 		{
-			cwd = await path.appDataDir();
-			tmp = await path.appCacheDir();
-		}
-		catch (e)
-		{
-			console.error("The Tauri environment doesn't have access to the path APIs");
-		}
-		
-		setup(FilaTauri, path?.sep || "", cwd, tmp);
-	};
-	
+			// This is a huge hack... but without this, the setup needs
+			// some async which means that it can't be done
+			const tmp = await path.appCacheDir();
+			Fila.setup(FilaTauri, sep, cwd, tmp);
+		})();
+	}
 })();

@@ -304,5 +304,5 @@ declare const CAPACITOR: boolean;
 	const cwd = "DATA";
 	const tmp = "CACHE";
 	const sep = "/";
-	Fila.setup = Fila.setup.bind(Fila, FilaCapacitor, sep, cwd, tmp) as any;
+	Fila.setup(FilaCapacitor, sep, cwd, tmp);
 })();

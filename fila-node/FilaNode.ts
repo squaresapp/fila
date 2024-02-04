@@ -239,5 +239,5 @@ declare const NODE: boolean;
 	const sep = (require("path") as typeof import("path")).sep;
 	const cwd = process.cwd();
 	const tmp = (require("os") as typeof import("os")).tmpdir();
-	Fila.setup = Fila.setup.bind(Fila, FilaNode, sep, cwd, tmp) as any;
+	Fila.setup(FilaNode, sep, cwd, tmp);
 })();

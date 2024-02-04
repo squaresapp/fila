@@ -2,25 +2,15 @@
 class Fila
 {
 	/**
-	 * Call this method with a particular Fila backend on the left-hand side to
-	 * force it to be the default Fila form. For example FilaNode.use();
-	 */
-	static setup(): Promise<void>;
-	/**
 	 * @internal
+	 * Each backend calls this method to perform the setup functions.
 	 * This is the internal .setup() overload that is called by each implementor.
 	 */
 	static setup(
 		backend: typeof Fila,
 		sep: string,
 		cwd: string,
-		temp: string): void;
-	/** @internal */
-	static setup(
-		backend?: typeof Fila,
-		sep?: string,
-		cwd?: string,
-		temp?: string): any
+		temp: string)
 	{
 		this.backend = backend!;
 		this._sep = sep || "/";

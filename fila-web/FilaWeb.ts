@@ -187,5 +187,5 @@ declare const WEB: boolean;
 		}
 	}
 	
-	Fila.setup.bind(Fila, FilaWeb, "/", "/", "/__temp/");
+	Fila.setup(FilaWeb, "/", "/", "/__temp/");
 })();
