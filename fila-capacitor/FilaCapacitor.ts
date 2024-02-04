@@ -1,4 +1,5 @@
 
+/** @internal */
 declare const CAPACITOR: boolean;
 
 (() =>
