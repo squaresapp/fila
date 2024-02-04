@@ -39,13 +39,11 @@
 		"bundle-all": "npm run bundle-capacitor && npm run bundle-node && npm run bundle-tauri && npm run bundle-web",
 		"release": "npm run bundle-all && cd ./+build && cp ../package.json ./package.json && np && cp ./package.json ../package.json"
 	},
-	"dependencies": {
-		"chokidar": "^3.5.3"
-	},
 	"devDependencies": {
 		"@capacitor/filesystem": "^5.2.1",
 		"@tauri-apps/api": "^1.5.3",
 		"@types/node": "^20.11.16",
+		"chokidar": "^3.5.3",
 		"keyvajs": "^1.0.2"
 	}
 }
