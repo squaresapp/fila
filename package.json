@@ -1,5 +1,5 @@
 {
-	"name": "filajs",
+	"name": "@squaresapp/fila",
 	"author": "Paul Gordon",
 	"description": "File system layer with multiple backends for different JavaScript environments.",
 	"license": "MIT",
