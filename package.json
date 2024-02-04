@@ -3,7 +3,7 @@
 	"author": "Paul Gordon",
 	"description": "File system layer with multiple backends for different JavaScript environments.",
 	"license": "MIT",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/squaresapp/fila"
