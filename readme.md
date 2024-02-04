@@ -7,4 +7,3 @@ File system layer with multiple backends. Readme coming.
 ```
 npm install @squaresapp/filajs
 ```
-
