@@ -32,6 +32,25 @@ You can install these plugins here:
 https://github.com/tauri-apps/tauri-plugin-fs-extra
 https://github.com/tauri-apps/tauri-plugin-fs-watch
 
+You'll also need to configure your `allowlist` in your `tauri.conf.json` file. Here is a segment of a sample to `tauri.conf.json` file to just allow everything in order to get something working (not terribly secure):
+
+```json
+{
+	"tauri": {
+		"allowlist": {
+			"fs": {
+				"scope": ["*/**"]
+			},
+			"path": {
+				"all": true
+			},
+		}
+	}
+}
+```
+
+See [this Tauri issue](https://github.com/tauri-apps/tauri/issues/4130) for more information on how to configure your allow list.
+
 ## Web
 
 The Web backend uses the [Keyva](https://github.com/paul-go/Keyva) IndexedDB layer. Make sure Keyva is visible globally, or install Keyva with npm via:
