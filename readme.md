@@ -1,6 +1,6 @@
 # Fila
 
-File system layer with multiple backends. Readme coming.
+File system layer with multiple backends.
 
 ## Installation
 
