@@ -44,6 +44,7 @@
 		"@tauri-apps/api": "^1.5.3",
 		"@types/node": "^20.11.16",
 		"chokidar": "^3.5.3",
-		"keyvajs": "^1.0.2"
+		"keyvajs": "^1.0.2",
+		"moduless": "^3.2.5"
 	}
 }

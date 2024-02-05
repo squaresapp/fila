@@ -10,7 +10,7 @@ declare const NODE: boolean;
 	//@ts-ignore
 	if (!NODE) return;
 	
-	class FilaNode extends Fila
+	class FilaNode extends Fila.FilaBackend
 	{
 		/** */
 		private readonly fs = require("fs") as typeof import("fs");
@@ -18,24 +18,24 @@ declare const NODE: boolean;
 		/** */
 		async readText()
 		{
-			return await this.fs.promises.readFile(this.path, "utf8");
+			return await this.fs.promises.readFile(this.fila.path, "utf8");
 		}
 		
 		/** */
 		async readBinary(): Promise<ArrayBuffer>
 		{
-			return await this.fs.promises.readFile(this.path);
+			return await this.fs.promises.readFile(this.fila.path);
 		}
 		
 		/** */
 		async readDirectory()
 		{
-			const fileNames = await this.fs.promises.readdir(this.path);
+			const fileNames = await this.fs.promises.readdir(this.fila.path);
 			const filas: Fila[] = [];
 			
 			for (const fileName of fileNames)
 				if (fileName !== ".DS_Store")
-					filas.push(new Fila(...this.components, fileName));
+					filas.push(new Fila(...this.fila.components, fileName));
 			
 			return filas;
 		}
@@ -43,27 +43,27 @@ declare const NODE: boolean;
 		/** */
 		async writeText(text: string, options?: Fila.IWriteTextOptions)
 		{
-			await this.up().writeDirectory();
+			await this.fila.up().writeDirectory();
 			
 			if (options?.append)
-				await this.fs.promises.appendFile(this.path, text);
+				await this.fs.promises.appendFile(this.fila.path, text);
 			else
-				await this.fs.promises.writeFile(this.path, text);
+				await this.fs.promises.writeFile(this.fila.path, text);
 		}
 		
 		/** */
 		async writeBinary(arrayBuffer: ArrayBuffer)
 		{
-			await this.up().writeDirectory();
+			await this.fila.up().writeDirectory();
 			const buffer = Buffer.from(arrayBuffer);
-			await this.fs.promises.writeFile(this.path, buffer);
+			await this.fs.promises.writeFile(this.fila.path, buffer);
 		}
 		
 		/** */
 		async writeDirectory()
 		{
-			if (!this.fs.existsSync(this.path))
-				await this.fs.promises.mkdir(this.path, { recursive: true });
+			if (!this.fs.existsSync(this.fila.path))
+				await this.fs.promises.mkdir(this.fila.path, { recursive: true });
 		}
 		
 		/**
@@ -74,7 +74,7 @@ declare const NODE: boolean;
 		{
 			return new Promise<void>(r =>
 			{
-				this.fs.symlink(at.path, this.path, () =>
+				this.fs.symlink(at.path, this.fila.path, () =>
 				{
 					r();
 				});
@@ -90,14 +90,14 @@ declare const NODE: boolean;
 			{
 				return new Promise<Error | void>(resolve =>
 				{
-					this.fs.rmdir(this.path, { recursive: true }, error =>
+					this.fs.rmdir(this.fila.path, { recursive: true }, error =>
 					{
 						resolve(error || void 0);
 					});
 				});
 			}
 			
-			await this.fs.promises.unlink(this.path);
+			await this.fs.promises.unlink(this.fila.path);
 		}
 		
 		/** */
@@ -105,7 +105,7 @@ declare const NODE: boolean;
 		{
 			return new Promise<void>(resolve =>
 			{
-				this.fs.rename(this.path, target.path, () => resolve());
+				this.fs.rename(this.fila.path, target.path, () => resolve());
 			});
 		}
 		
@@ -116,7 +116,7 @@ declare const NODE: boolean;
 			{
 				if (await this.isDirectory())
 				{
-					this.fs.cp(this.path, target.path, { recursive: true, force: true }, () => resolve());
+					this.fs.cp(this.fila.path, target.path, { recursive: true, force: true }, () => resolve());
 				}
 				else
 				{
@@ -125,17 +125,17 @@ declare const NODE: boolean;
 					if (!await dir.exists())
 						await new Promise(r => this.fs.mkdir(dir.path, { recursive: true }, r));
 					
-					this.fs.copyFile(this.path, target.path, () => resolve());
+					this.fs.copyFile(this.fila.path, target.path, () => resolve());
 				}
 			});
 		}
 		
 		/** */
-		protected watchProtected(
+		watchProtected(
 			recursive: boolean,
 			callbackFn: (event: Fila.Event, fila: Fila, secondaryFila?: Fila) => void)
 		{
-			const watcher = FilaNode.chokidar.watch(this.path);
+			const watcher = FilaNode.chokidar.watch(this.fila.path);
 			
 			watcher.on("ready", () =>
 			{
@@ -173,7 +173,7 @@ declare const NODE: boolean;
 		/** */
 		rename(newName: string)
 		{
-			return this.fs.promises.rename(this.path, this.up().down(newName).path);
+			return this.fs.promises.rename(this.fila.path, this.fila.up().down(newName).path);
 		}
 		
 		/** */
@@ -181,7 +181,7 @@ declare const NODE: boolean;
 		{
 			return new Promise<boolean>(r =>
 			{
-				this.fs.stat(this.path, error =>
+				this.fs.stat(this.fila.path, error =>
 				{
 					r(!error);
 				});
@@ -228,7 +228,7 @@ declare const NODE: boolean;
 		{
 			return new Promise<import("fs").Stats | undefined>(r =>
 			{
-				this.fs.stat(this.path, (error, stats) =>
+				this.fs.stat(this.fila.path, (error, stats) =>
 				{
 					r(stats);
 				});

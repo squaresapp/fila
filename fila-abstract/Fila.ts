@@ -3,27 +3,55 @@ class Fila
 {
 	/**
 	 * @internal
+	 * Abstract class that must be implemented by Fila backends.
+	 */
+	static readonly FilaBackend = (() =>
+	{
+		abstract class FilaBackend
+		{
+			constructor(protected readonly fila: Fila) { }
+			
+			abstract readText(): Promise<string>;
+			abstract readBinary(): Promise<ArrayBuffer>;
+			abstract readDirectory(): Promise<Fila[]>;
+			abstract writeText(text: string, options?: Fila.IWriteTextOptions): Promise<void>;
+			abstract writeBinary(buffer: ArrayBuffer): Promise<void>;
+			abstract writeDirectory(): Promise<void>;
+			abstract writeSymlink(at: Fila): Promise<void>;
+			abstract delete(): Promise<Error | void>;
+			abstract move(target: Fila): Promise<void>;
+			abstract copy(target: Fila): Promise<void>;
+			
+			abstract watchProtected(
+				recursive: boolean, 
+				callbackFn: (event: Fila.Event, fila: Fila) => void): () => void;
+			
+			abstract rename(newName: string): Promise<void>;
+			abstract exists(): Promise<boolean>;
+			abstract getSize(): Promise<number>;
+			abstract getModifiedTicks(): Promise<number>;
+			abstract getCreatedTicks(): Promise<number>;
+			abstract getAccessedTicks(): Promise<number>;
+			abstract isDirectory(): Promise<boolean>;
+		}
+		
+		return FilaBackend;
+	})();
+	
+	/**
+	 * @internal
 	 * Each backend calls this method to perform the setup functions.
 	 * This is the internal .setup() overload that is called by each implementor.
 	 */
-	static setup(
-		backend: typeof Fila,
-		sep: string,
-		cwd: string,
-		temp: string)
+	static setup(backend: typeof Fila.FilaBackend, sep: string, cwd: string, temp: string)
 	{
-		this.backend = backend!;
+		this.backend = backend;
 		this._sep = sep || "/";
 		this._cwd = cwd!;
 		this._temporary = temp!;
 	}
 	
-	/**
-	 * @internal
-	 * Assigns the file system backend that is used by all Fila objects.
-	 * This should be set once during initialization.
-	 */
-	private static backend: typeof Fila;
+	private static backend: typeof Fila.FilaBackend;
 	
 	/**
 	 * Path separator.
@@ -72,74 +100,69 @@ class Fila
 	constructor(...components: string[])
 	{
 		this.components = components;
-		
-		const backend = Fila.backend as any as new(components: string[]) => Fila;
-		if (!backend)
-			throw new Error("Fila backend not set.");
-		
 		components = components.filter(s => !!s);
 		
-		if (components.join("") === "/")
-			return new backend(["/"]);
+		if (components.join("") !== "/")
+		{
+			if (components.length === 0 || components[0].startsWith("."))
+				components.unshift(Fila.cwd.path);
+			
+			for (let i = -1; ++i < components.length;)
+				components.splice(i, 1, ...components[i].split(Fila.sep));
+			
+			components = components.filter(s => !!s);
+			components = Fila.normalize(components.join(Fila.sep)).split(Fila.sep);
+		}
 		
-		if (components.length === 0 || components[0].startsWith("."))
-			components.unshift(Fila.cwd.path);
-		
-		for (let i = -1; ++i < components.length;)
-			components.splice(i, 1, ...components[i].split(Fila.sep));
-		
-		components = components.filter(s => !!s);
-		components = Fila.normalize(components.join(Fila.sep)).split(Fila.sep);
-		
-		// This is done to avoid a factory method.
-		Object.assign(this, backend);
+		let back: InstanceType<typeof Fila.FilaBackend>;
+		//@ts-ignore
+		back = new Fila.backend(this);
+		this.back = back;
 	}
 	
 	readonly components;
+	private readonly back: InstanceType<typeof Fila.FilaBackend>;
 	
 	/** */
-	private not(): any
+	readText(): Promise<string> { return this.back.readText(); }
+	
+	/** */
+	readBinary(): Promise<ArrayBuffer> { return this.back.readBinary(); }
+	
+	/** */
+	readDirectory(): Promise<Fila[]> { return this.back.readDirectory(); }
+	
+	/** */
+	writeText(text: string, options?: Fila.IWriteTextOptions): Promise<void>
 	{
-		throw new Error("This method isn't implemented.");
+		return this.back.writeText(text, options);
 	}
 	
 	/** */
-	readText(): Promise<string> { return this.not(); }
+	writeBinary(buffer: ArrayBuffer): Promise<void> { return this.back.writeBinary(buffer); }
 	
 	/** */
-	readBinary(): Promise<ArrayBuffer> { return this.not(); }
-	
-	/** */
-	readDirectory(): Promise<Fila[]> { return this.not(); }
-	
-	/** */
-	writeText(text: string, options?: Fila.IWriteTextOptions): Promise<void> { return this.not(); }
-	
-	/** */
-	writeBinary(buffer: ArrayBuffer): Promise<void> { return this.not(); }
-	
-	/** */
-	writeDirectory(): Promise<void> { return this.not(); }
+	writeDirectory(): Promise<void> { return this.back.writeDirectory(); }
 	
 	/**
 	 * Writes a symlink file at the location represented by the specified
 	 * Fila object, to the location specified by the current Fila object.
 	 */
-	writeSymlink(at: Fila): Promise<void> { return this.not(); }
+	writeSymlink(at: Fila): Promise<void> { return this.back.writeSymlink(at); }
 	
 	/**
 	 * Deletes the file or directory that this Fila object represents.
 	 */
-	delete(): Promise<Error | void> { return this.not(); }
+	delete(): Promise<Error | void> { return this.back.delete(); }
 	
 	/** */
-	move(target: Fila): Promise<void> { return this.not(); }
+	move(target: Fila): Promise<void> { return this.back.move(target); }
 	
 	/**
 	 * Copies the file to the specified location, and creates any
 	 * necessary directories along the way.
 	 */
-	copy(target: Fila): Promise<void> { return this.not(); }
+	copy(target: Fila): Promise<void> { return this.back.copy(target); }
 	
 	/**
 	 * Recursively watches this folder, and all nested files contained
@@ -166,28 +189,31 @@ class Fila
 	/** */
 	protected watchProtected(
 		recursive: boolean, 
-		callbackFn: (event: Fila.Event, fila: Fila) => void): () => void { return this.not(); }
+		callbackFn: (event: Fila.Event, fila: Fila) => void): () => void
+	{
+		return this.back.watchProtected(recursive, callbackFn);
+	}
 	
 	/** */
-	rename(newName: string): Promise<void> { return this.not(); }
+	rename(newName: string): Promise<void> { return this.back.rename(newName); }
 	
 	/** */
-	exists(): Promise<boolean> { return this.not(); }
+	exists(): Promise<boolean> { return this.back.exists(); }
 	
 	/** */
-	getSize(): Promise<number> { return this.not(); }
+	getSize(): Promise<number> { return this.back.getSize(); }
 	
 	/** */
-	getModifiedTicks(): Promise<number> { return this.not(); }
+	getModifiedTicks(): Promise<number> { return this.back.getModifiedTicks(); }
 	
 	/** */
-	getCreatedTicks(): Promise<number> { return this.not(); }
+	getCreatedTicks(): Promise<number> { return this.back.getCreatedTicks(); }
 	
 	/** */
-	getAccessedTicks(): Promise<number> { return this.not(); }
+	getAccessedTicks(): Promise<number> { return this.back.getAccessedTicks(); }
 	
 	/** */
-	isDirectory(): Promise<boolean> { return this.not(); }
+	isDirectory(): Promise<boolean> { return this.back.isDirectory(); }
 	
 	/**
 	 * In the case when this Fila object represents a file, this method returns a 

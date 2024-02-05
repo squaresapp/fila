@@ -11,7 +11,7 @@ declare const CAPACITOR: boolean;
 	if (!CAPACITOR) return;
 	
 	/** */
-	class FilaCapacitor extends Fila
+	class FilaCapacitor extends Fila.FilaBackend
 	{
 		/** */
 		private get fs()
@@ -30,7 +30,7 @@ declare const CAPACITOR: boolean;
 		 */
 		get path()
 		{
-			return Fila.join(...this.components);
+			return Fila.join(...this.fila.components);
 		}
 		
 		/** */
@@ -79,7 +79,7 @@ declare const CAPACITOR: boolean;
 		{
 			try
 			{
-				const up = this.up();
+				const up = this.fila.up();
 				if (!await up.exists())
 					await up.writeDirectory();
 				
@@ -104,7 +104,7 @@ declare const CAPACITOR: boolean;
 		/** */
 		async writeBinary(arrayBuffer: ArrayBuffer)
 		{
-			await this.up().writeDirectory();
+			await this.fila.up().writeDirectory();
 			const data = await this.arrayBufferToBase64(arrayBuffer);
 			await this.fs.writeFile({
 				...this.getDefaultOptions(),
@@ -193,7 +193,7 @@ declare const CAPACITOR: boolean;
 		/** */
 		async rename(newName: string)
 		{
-			const target = this.up().down(newName).path;
+			const target = this.fila.up().down(newName).path;
 			const fromOptions = this.getDefaultOptions();
 			const toOptions = this.getDefaultOptions(target);
 			
@@ -206,7 +206,7 @@ declare const CAPACITOR: boolean;
 		}
 		
 		/** */
-		protected watchProtected(
+		watchProtected(
 			recursive: boolean,
 			callbackFn: (event: Fila.Event, fila: Fila) => void): () => void
 		{

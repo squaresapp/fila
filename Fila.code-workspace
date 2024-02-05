@@ -24,7 +24,25 @@
 		"task.allowAutomaticTasks": "on",
 	},
 	"launch": {
-		
+		"configurations": [
+			{
+				"name": "Debug",
+				"type": "node",
+				"request": "launch",
+				"cwd": "${workspaceFolder}/",
+				"program": "${workspaceFolder}/build/fila.js",
+				"sourceMaps": true,
+			},
+			{
+				"name": "Debug Active Cover Function (Node.js)",
+				"type": "node",
+				"request": "launch",
+				"cwd": "${workspaceFolder}",
+				"program": "${workspaceFolder}/../Moduless/build/moduless.js",
+				"sourceMaps": true,
+				"timeout": 2000
+			},
+		]
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -51,6 +69,17 @@
 					"isDefault": true
 				},
 				"isBackground": true
+			},
+			{
+				"label": "Set Active Cover Function",
+				"type": "shell",
+				"command": "node",
+				"args": [
+					"${workspaceFolder}/node_modules/moduless/build/moduless.js",
+					"set",
+					"${file}:${lineNumber}"
+				],
+				"problemMatcher": []
 			}
 		]
 	}

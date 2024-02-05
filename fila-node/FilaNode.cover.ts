@@ -2,9 +2,12 @@
 namespace Cover
 {
 	/** */
-	export function coverFilaNode()
+	export async function coverFilaNode()
 	{
 		const fila = new Fila(process.cwd(), "FilaNode", "+sample");
+		const x = fila.down("x");
+		await fila.isDirectory();
+		
 		fila.watch((ev, fila) =>
 		{
 			console.log(ev + ": " + fila.path);

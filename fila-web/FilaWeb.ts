@@ -12,28 +12,28 @@ declare const WEB: boolean;
 	
 	type Keyva = typeof import("keyvajs");
 	
-	class FilaWeb extends Fila
+	class FilaWeb extends Fila.FilaBackend
 	{
 		/** @internal */
 		private static keyva: Keyva;
 		
 		/** */
-		constructor(...components: string[])
+		constructor(fila: Fila)
 		{
-			super(...components);
+			super(fila);
 			FilaWeb.keyva ||= new Keyva({ name: "fila" });
 		}
 		
 		/** */
 		async readText()
 		{
-			return await FilaWeb.keyva.get<string>(this.path);
+			return await FilaWeb.keyva.get<string>(this.fila.path);
 		}
 		
 		/** */
 		async readBinary(): Promise<ArrayBuffer>
 		{
-			const value = await FilaWeb.keyva.get(this.path);
+			const value = await FilaWeb.keyva.get(this.fila.path);
 			return value instanceof ArrayBuffer ?
 				value :
 				new TextEncoder().encode(value);
@@ -43,7 +43,7 @@ declare const WEB: boolean;
 		async readDirectory()
 		{
 			const filas: Fila[] = [];
-			const range = Keyva.prefix(this.path + "/");
+			const range = Keyva.prefix(this.fila.path + "/");
 			const contents = await FilaWeb.keyva.each({ range }, "keys");
 			
 			for (const key of contents)
@@ -56,7 +56,7 @@ declare const WEB: boolean;
 		/** */
 		async writeText(text: string, options?: Fila.IWriteTextOptions)
 		{
-			let current = this.up();
+			let current = this.fila.up();
 			const missingFolders: Fila[] = [];
 			
 			for (;;)
@@ -76,15 +76,15 @@ declare const WEB: boolean;
 				await folder.writeDirectory();
 			
 			if (options?.append)
-				text = ("" + (await FilaWeb.keyva.get(this.path) || "")) + text;
+				text = ("" + (await FilaWeb.keyva.get(this.fila.path) || "")) + text;
 			
-			await FilaWeb.keyva.set(this.path, text);
+			await FilaWeb.keyva.set(this.fila.path, text);
 		}
 		
 		/** */
 		async writeBinary(arrayBuffer: ArrayBuffer)
 		{
-			await FilaWeb.keyva.set(this.path, arrayBuffer);
+			await FilaWeb.keyva.set(this.fila.path, arrayBuffer);
 		}
 		
 		/** */
@@ -96,7 +96,7 @@ declare const WEB: boolean;
 			if (await this.exists())
 				throw new Error("A file already exists at this location.");
 			
-			await FilaWeb.keyva.set(this.path, null);
+			await FilaWeb.keyva.set(this.fila.path, null);
 		}
 		
 		/**
@@ -115,11 +115,11 @@ declare const WEB: boolean;
 		{
 			if (await this.isDirectory())
 			{
-				const range = Keyva.prefix(this.path + "/");
+				const range = Keyva.prefix(this.fila.path + "/");
 				await FilaWeb.keyva.delete(range);
 			}
 			
-			await FilaWeb.keyva.delete(this.path);
+			await FilaWeb.keyva.delete(this.fila.path);
 		}
 		
 		/** */
@@ -135,7 +135,7 @@ declare const WEB: boolean;
 		}
 		
 		/** */
-		protected watchProtected(
+		watchProtected(
 			recursive: boolean,
 			callbackFn: (event: Fila.Event, fila: Fila, secondaryFila?: Fila) => void)
 		{
@@ -152,7 +152,7 @@ declare const WEB: boolean;
 		/** */
 		async exists()
 		{
-			const value = await FilaWeb.keyva.get(this.path);
+			const value = await FilaWeb.keyva.get(this.fila.path);
 			return value !== undefined;
 		}
 		
@@ -183,7 +183,7 @@ declare const WEB: boolean;
 		/** */
 		async isDirectory()
 		{
-			return await FilaWeb.keyva.get(this.path) === null;
+			return await FilaWeb.keyva.get(this.fila.path) === null;
 		}
 	}
 	

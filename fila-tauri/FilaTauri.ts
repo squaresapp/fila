@@ -10,7 +10,7 @@ declare const TAURI: boolean;
 	//@ts-ignore
 	if (!TAURI) return;
 	
-	class FilaTauri extends Fila
+	class FilaTauri extends Fila.FilaBackend
 	{
 		/** */
 		private readonly fs: typeof import("@tauri-apps/api").fs = 
@@ -19,24 +19,24 @@ declare const TAURI: boolean;
 		/** */
 		readText()
 		{
-			return this.fs.readTextFile(this.path);
+			return this.fs.readTextFile(this.fila.path);
 		}
 		
 		/** */
 		readBinary()
 		{
-			return this.fs.readBinaryFile(this.path);
+			return this.fs.readBinaryFile(this.fila.path);
 		}
 		
 		/** */
 		async readDirectory()
 		{
-			const fileNames = await this.fs.readDir(this.path);
+			const fileNames = await this.fs.readDir(this.fila.path);
 			const filas: Fila[] = [];
 			
 			for (const fileName of fileNames)
 				if (fileName.name !== ".DS_Store")
-					filas.push(new Fila(this.path, fileName.name || ""));
+					filas.push(new Fila(this.fila.path, fileName.name || ""));
 			
 			return filas;
 		}
@@ -46,11 +46,11 @@ declare const TAURI: boolean;
 		{
 			try
 			{
-				const up = this.up();
+				const up = this.fila.up();
 				if (!await up.exists())
 					await up.writeDirectory();
 				
-				await this.fs.writeTextFile(this.path, text, {
+				await this.fs.writeTextFile(this.fila.path, text, {
 					append: options?.append
 				});
 			}
@@ -63,14 +63,14 @@ declare const TAURI: boolean;
 		/** */
 		async writeBinary(arrayBuffer: ArrayBuffer)
 		{
-			await this.up().writeDirectory();
-			await this.fs.writeBinaryFile(this.path, arrayBuffer);
+			await this.fila.up().writeDirectory();
+			await this.fs.writeBinaryFile(this.fila.path, arrayBuffer);
 		}
 		
 		/** */
 		async writeDirectory()
 		{
-			this.fs.createDir(this.path, { recursive: true });
+			this.fs.createDir(this.fila.path, { recursive: true });
 		}
 		
 		/**
@@ -91,12 +91,12 @@ declare const TAURI: boolean;
 			{
 				return new Promise<Error | void>(async resolve =>
 				{
-					await this.fs.removeDir(this.path, { recursive: true });
+					await this.fs.removeDir(this.fila.path, { recursive: true });
 					resolve();
 				});
 			}
 			
-			await this.fs.removeFile(this.path);
+			await this.fs.removeFile(this.fila.path);
 		}
 		
 		/** */
@@ -111,11 +111,11 @@ declare const TAURI: boolean;
 			if (await target.isDirectory())
 				throw "Copying directories is not implemented.";
 			
-			await this.fs.copyFile(this.path, target.path);
+			await this.fs.copyFile(this.fila.path, target.path);
 		}
 		
 		/** */
-		protected watchProtected(
+		watchProtected(
 			recursive: boolean,
 			callbackFn: (event: Fila.Event, fila: Fila) => void)
 		{
@@ -123,7 +123,7 @@ declare const TAURI: boolean;
 			
 			(async () =>
 			{
-				un = await watchInternal(this.path, {}, async ev =>
+				un = await watchInternal(this.fila.path, {}, async ev =>
 				{
 					if (!un)
 						return;
@@ -162,13 +162,13 @@ declare const TAURI: boolean;
 		async rename(newName: string)
 		{
 			// Note that the "renameFile" method actually works on directories
-			return this.fs.renameFile(this.path, this.up().down(newName).path);
+			return this.fs.renameFile(this.fila.path, this.fila.up().down(newName).path);
 		}
 		
 		/** */
 		async exists()
 		{
-			return this.fs.exists(this.path);
+			return this.fs.exists(this.fila.path);
 		}
 		
 		/** */
@@ -204,7 +204,7 @@ declare const TAURI: boolean;
 		/** */
 		private async getMeta()
 		{
-			return this._meta || (this._meta = await getMetadata(this.path));
+			return this._meta || (this._meta = await getMetadata(this.fila.path));
 		}
 		private _meta: Metadata | null = null;
 	}
