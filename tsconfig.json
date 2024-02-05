@@ -24,7 +24,7 @@
 	},
 	"include": [
 		"node_modules/keyvajs/*.ts",
-		"fila-abstract/Fila.ts",
+		"fila/Fila.ts",
 		"fila-*/**/*.ts",
 	]
 }
