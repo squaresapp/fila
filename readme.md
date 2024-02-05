@@ -24,7 +24,7 @@ The Node.JS backend mostly works out of the box, but if you want to use the `fil
 npm install chokidar
 ```
 
-## Tauri
+## Tauri (1.5)
 
 The Tauri backend meta data methods depend on plugin `fs-extra` and `fs-watch`.
 
@@ -50,6 +50,8 @@ You'll also need to configure your `allowlist` in your `tauri.conf.json` file. H
 ```
 
 See [this Tauri issue](https://github.com/tauri-apps/tauri/issues/4130) for more information on how to configure your allow list.
+
+Note that these instructions are for Tauri 1.5. Tauri 2.0 uses a completely different system and will likely need a separate Fila backend in order to operate over it's file system plugin system.
 
 ## Web
 
