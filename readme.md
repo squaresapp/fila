@@ -26,11 +26,11 @@ npm install chokidar
 
 ## Tauri (1.5)
 
-The Tauri backend meta data methods depend on plugin `fs-extra` and `fs-watch`.
+The Tauri backend meta data methods depend on plugin `fs-extra` and `fs-watch`.You can install these plugins here:
 
-You can install these plugins here:
-https://github.com/tauri-apps/tauri-plugin-fs-extra
-https://github.com/tauri-apps/tauri-plugin-fs-watch
+[https://github.com/tauri-apps/tauri-plugin-fs-extra](https://github.com/tauri-apps/tauri-plugin-fs-extra)
+
+[https://github.com/tauri-apps/tauri-plugin-fs-watch](https://github.com/tauri-apps/tauri-plugin-fs-watch)
 
 You'll also need to configure your `allowlist` in your `tauri.conf.json` file. Here is a segment of a sample to `tauri.conf.json` file to just allow everything in order to get something working (not terribly secure):
 
