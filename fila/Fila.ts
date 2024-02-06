@@ -99,7 +99,6 @@ class Fila
 	/** */
 	constructor(...components: string[])
 	{
-		this.components = components;
 		components = components.filter(s => !!s);
 		
 		if (components.join("") !== "/")
@@ -107,13 +106,14 @@ class Fila
 			if (components.length === 0 || components[0].startsWith("."))
 				components.unshift(Fila.cwd.path);
 			
-			for (let i = -1; ++i < components.length;)
+			for (let i = components.length; i-- > 0;)
 				components.splice(i, 1, ...components[i].split(Fila.sep));
 			
 			components = components.filter(s => !!s);
 			components = Fila.normalize(components.join(Fila.sep)).split(Fila.sep);
 		}
 		
+		this.components = components;
 		let back: InstanceType<typeof Fila.FilaBackend>;
 		//@ts-ignore
 		back = new Fila.backend(this);
